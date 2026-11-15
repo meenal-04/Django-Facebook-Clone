@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{{ profile_user.username }} • Connectly{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <!-- PROFILE HEADER CARD -->
+        <div class="card border-0 shadow-sm mb-4" style="overflow: hidden;">
+            <!-- Cover Photo -->
+            <div style="height: 250px; background: url('{% if profile.cover_photo %}{{ profile.cover_photo.url }}{% else %}https://images.unsplash.com/photo-1579546929518-9e396f3cc809{% endif %}') center/cover;"></div>
+
+            <div class="card-body position-relative pt-0">
+                <div class="d-flex align-items-end gap-3 mb-3" style="margin-top: -50px;">
+
+                    <!-- AVATAR -->
+                    <div class="position-relative" style="z-index: 2;">
+                        {% if profile.avatar %}
+                            <img src="{{ profile.avatar.url }}" class="rounded-circle border border-4 border-white bg-white shadow-sm" style="width:140px;height:140px;object-fit:cover;">
+                        {% else %}
+                            <div class="avatar-circle border border-4 border-white bg-primary shadow-sm" style="width:140px;height:140px;font-size:4rem;">{{ profile_user.username|first|upper }}</div>
+                        {% endif %}
+
+                        {% if is_own_profile %}
+                        <div class="position-absolute bottom-0 end-0 mb-2 me-2">
+                            <button class="btn btn-light rounded-circle shadow-sm p-2" data-bs-toggle="modal" data-bs-target="#updatePicModal" title="Change Profile Picture">
+                                <i class="bi bi-camera-fill text-dark"></i>
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex-grow-1 pb-2">
+                        <h3 class="mb-0 fw-bold">{{ profile_user.get_full_name|default:profile_user.username }}</h3>
+                        <div class="text-muted small">@{{ profile_user.username }}</div>
+                        <div class="text-muted small mt-1">
+                            {% if profile.location %}<i class="bi bi-geo-alt"></i> {{ profile.location }} &middot; {% endif %}
+                            <i class="bi bi-people"></i> {{ friend_count }} friend{{ friend_count|pluralize }}
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 pb-2">
+                        {% if is_own_profile %}
+                            <a href="{% url 'edit_profile' %}" class="btn btn-primary fw-bold px-4">Edit Profile</a>
+                        {% else %}
+                            {% if friendship_status == "friends" %}
+                                <a href="{% url 'chat_room' username=profile_user.username %}" class="btn btn-primary fw-bold">Message</a>
+                                <form method="post" action="{% url 'unfriend_user' username=profile_user.username %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button class="btn btn-outline-secondary fw-bold">Unfriend</button>
+                                </form>
+                            {% elif pending_request %}
+                                <form method="post" action="{% url 'cancel_friend_request' request_id=pending_request.id %}">
+                                    {% csrf_token %}<button class="btn btn-outline-secondary fw-bold">Cancel Request</button>
+                                </form>
+                            {% elif incoming_request %}
+                                <form method="post" action="{% url 'accept_friend_request' request_id=incoming_request.id %}">
+                                    {% csrf_token %}<button class="btn btn-success fw-bold">Accept Request</button>
+                                </form>
+                            {% elif not is_blocked and not has_blocked_me %}
+                                <form method="post" action="{% url 'send_friend_request' username=profile_user.username %}">
+                                    {% csrf_token %}<button class="btn btn-primary fw-bold">Add Friend</button>
+                                </form>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if profile.bio %}
+                    <p class="text-muted small mb-0 mt-2" style="white-space: pre-wrap; word-wrap: break-word; max-width: 100%;">{{ profile.bio }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- POSTS SECTION -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Posts</h5>
+            <div class="text-muted small"><i class="bi bi-lock-fill"></i> Only you can see who interacted</div>
+        </div>
+
+        {% if not can_view_posts %}
+            <div class="card border-0 shadow-sm text-center py-5">
+                <i class="bi bi-lock-fill display-1 text-muted mb-3"></i>
+                <h4 class="fw-bold">This Account is Private</h4>
+                <p class="text-muted">Add this user as a friend to see their posts.</p>
+            </div>
+        {% else %}
+            {% for post in posts %}
+                <article class="card post-card mb-3 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <small class="text-muted">{{ post.created_at|naturaltime }}</small>
+                            <span class="badge bg-{% if post.privacy == 'public' %}success{% else %}warning text-dark{% endif %}">{{ post.get_privacy_display }}</span>
+                        </div>
+                        <p>{{ post.content|linebreaksbr }}</p>
+                        {% if post.image %}<img src="{{ post.image.url }}" class="img-fluid rounded mb-2 w-100" style="max-height:400px;object-fit:cover;">{% endif %}
+
+                        <div class="d-flex gap-3 text-muted small border-top pt-2">
+                            <span class="open-likers-btn" style="cursor:pointer;" data-post-id="{{ post.id }}">
+                                <i class="bi bi-hand-thumbs-up-fill text-primary"></i> {{ post.total_likes }} Likes
+                            </span>
+                            <span><i class="bi bi-chat"></i> {{ post.comments.count }} Comments</span>
+                        </div>
+                    </div>
+                </article>
+            {% empty %}
+                <div class="card border-0 shadow-sm text-center py-4 text-muted">
+                    <p class="mb-0">No posts yet.</p>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<!-- UPDATE PROFILE PIC MODAL -->
+<div class="modal fade" id="updatePicModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 pb-0"><h5 class="modal-title fw-bold">Select Profile Picture</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body p-4 text-center">
+                <form method="post" action="{% url 'update_profile_pic' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <i class="bi bi-person-square display-1 text-muted mb-3"></i>
+                    <input type="file" name="avatar" class="form-control mb-3" accept="image/*" required>
+                    <button type="submit" class="btn btn-primary w-100 fw-bold">Upload</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- POST LIKERS MODAL (Needed for Profile page) -->
+<div class="modal fade" id="likersModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow" style="border-radius: 12px; overflow: hidden;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="likersCountTitle">Likes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0" style="max-height: 60vh; overflow-y: auto;">
+                <div id="likersList" class="list-group list-group-flush"><div class="text-center py-4"><div class="spinner-border text-primary"></div></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const likersModalEl = document.getElementById('likersModal');
+    if(!likersModalEl) return;
+    
+    const likersModal = new bootstrap.Modal(likersModalEl);
+    
+    document.querySelectorAll(".open-likers-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const postId = this.getAttribute("data-post-id");
+            document.getElementById('likersCountTitle').innerText = "Loading...";
+            document.getElementById('likersList').innerHTML = `<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>`;
+            likersModal.show();
+            
+            fetch(`/api/post/${postId}/likers/`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "success") {
+                    document.getElementById('likersCountTitle').innerText = `${data.likers.length} Reaction${data.likers.length !== 1 ? 's' : ''}`;
+                    const list = document.getElementById('likersList');
+                    list.innerHTML = ""; 
+                    if (data.likers.length === 0) { 
+                        list.innerHTML = `<div class="text-center py-4 text-muted small">No reactions yet.</div>`; 
+                        return; 
+                    }
+                    data.likers.forEach(l => {
+                        let avatarHtml = l.avatar ? `<img src="${l.avatar}" class="rounded-circle" style="width:45px;height:45px;object-fit:cover;">` : `<div class="avatar-circle" style="width:45px;height:45px;font-size:1.2rem;">${l.initial}</div>`;
+                        list.innerHTML += `
+                            <div class="list-group-item d-flex align-items-center gap-3 py-3 border-0 border-bottom">
+                                <a href="${l.profile_url}">${avatarHtml}</a>
+                                <div class="flex-grow-1"><a href="${l.profile_url}" class="fw-bold text-dark text-decoration-none d-block">${l.username}</a><small class="text-muted">${l.reaction}</small></div>
+                            </div>`;
+                    });
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

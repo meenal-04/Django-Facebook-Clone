@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Notifications • Connectly{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h4 class="fw-bold mb-3">Notifications</h4>
+        <div class="card border-0 shadow-sm">
+            <ul class="list-group list-group-flush">
+                {% for notif in notifications %}
+                    <li class="list-group-item d-flex gap-3 py-3 {% if not notif.is_read %}bg-light{% endif %}">
+                        <div class="avatar-circle">{{ notif.sender.username|first|upper }}</div>
+                        <div>
+                            <a href="{% url 'profile_view' username=notif.sender.username %}" class="fw-bold text-decoration-none text-dark">
+                                {{ notif.sender.username }}
+                            </a>
+                            
+                            {% if notif.notification_type == 'like' %}
+                                liked your {% if notif.comment %}comment{% else %}post{% endif %}.
+                            {% elif notif.notification_type == 'story_like' %}
+                                liked your story.
+                            {% elif notif.notification_type == 'comment' %}
+                                commented on your post.
+                            {% elif notif.notification_type == 'reply' %}
+                                replied to your comment.
+                            {% elif notif.notification_type == 'friend_request' %}
+                                sent you a friend request.
+                            {% elif notif.notification_type == 'accept' %}
+                                accepted your friend request.
+                            {% endif %}
+                            
+                            <div class="text-muted small">{{ notif.created_at|timesince }} ago</div>
+                            
+                            {% if notif.post %}
+                                <a href="{% url 'feed' %}" class="small text-decoration-none">View Post</a>
+                            {% endif %}
+                        </div>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-center text-muted py-4">No notifications yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

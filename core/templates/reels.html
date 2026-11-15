@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Reels • Fakebook{% endblock %}
+
+{% block content %}
+<style>
+    #reelsLoader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--fb-bg); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .spinner-logo { width: 80px; height: 80px; animation: pulse 1.5s infinite ease-in-out; }
+    @keyframes pulse { 0% { transform: scale(0.9); opacity: 0.7; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(0.9); opacity: 0.7; } }
+    
+    /* FIXED WIDTH & SCROLLING */
+    .reels-container { 
+        height: calc(100vh - 80px); 
+        width: 100%; /* Take full width of parent column */
+        max-width: 450px; /* Prevent it from getting too wide on huge monitors */
+        margin: 0 auto;
+        overflow-y: scroll; 
+        scroll-snap-type: y mandatory; 
+        background: black; 
+        border-radius: 12px; 
+        scrollbar-width: none; 
+        position: relative;
+    }
+    .reels-container::-webkit-scrollbar { display: none; }
+    
+    .reel { 
+        height: 100%; 
+        width: 100%;
+        scroll-snap-align: start; 
+        position: relative; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        background: #000;
+    }
+    
+    .reel video { 
+        height: 100%; 
+        width: 100%; 
+        object-fit: contain; 
+    }
+    
+    .reel-overlay { position: absolute; bottom: 20px; left: 20px; right: 80px; color: white; z-index: 10; text-shadow: 1px 1px 5px rgba(0,0,0,0.8); pointer-events: none; }
+    .reel-actions { position: absolute; bottom: 20px; right: 10px; z-index: 10; display: flex; flex-direction: column; gap: 15px; text-align: center; }
+</style>
+
+<!-- Loading Screen -->
+<div id="reelsLoader">
+    <img src="{% static 'img/fakebook_icon.png' %}" class="spinner-logo mb-3" alt="Loading">
+    <h5 class="text-primary fw-bold">Loading Reels...</h5>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12 d-flex justify-content-center">
+        <div class="reels-container">
+            {% for reel in reels %}
+            <div class="reel">
+                <video src="{{ reel.url }}" loop muted playsinline autoplay preload="metadata" onclick="this.paused ? this.play() : this.pause();"></video>
+                
+                <div class="reel-overlay">
+                    <h6 class="fw-bold mb-1"><i class="bi bi-person-circle"></i> @{{ reel.author }}</h6>
+                    <p class="small mb-0">{{ reel.caption }}</p>
+                </div>
+
+                <div class="reel-actions text-white">
+                    <div>
+                        <button class="btn btn-dark bg-opacity-50 rounded-circle p-2 mb-1"><i class="bi bi-heart-fill text-danger fs-5"></i></button>
+                        <div class="small fw-bold">{{ reel.likes }}</div>
+                    </div>
+                    <div>
+                        <button class="btn btn-dark bg-opacity-50 rounded-circle p-2 mb-1" onclick="alert('Comment section coming soon!')"><i class="bi bi-chat-fill fs-5"></i></button>
+                        <div class="small fw-bold">{{ reel.comments }}</div>
+                    </div>
+                    <div>
+                        <button class="btn btn-dark bg-opacity-50 rounded-circle p-2 mb-1" onclick="window.location.href='/messages/{{ reel.author }}/'"><i class="bi bi-send-fill fs-5"></i></button>
+                        <div class="small fw-bold">Chat</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    setTimeout(() => { 
+        const loader = document.getElementById('reelsLoader');
+        if(loader) loader.style.display = 'none'; 
+    }, 800);
+</script>
+{% endblock %}

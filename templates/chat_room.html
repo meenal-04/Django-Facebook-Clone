@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Chat with {{ other_user.username }} • Connectly{% endblock %}
+
+{% block content %}
+<div class="fb-card" style="height: 85vh; display: flex; flex-direction: column;">
+    <!-- Chat Header -->
+    <div class="p-3 border-bottom d-flex align-items-center gap-2 bg-white shadow-sm" style="z-index: 2;">
+        <div class="avatar-circle">{{ other_user.username|first|upper }}</div>
+        <div>
+            <h6 class="mb-0 fw-bold">{{ other_user.username }}</h6>
+            <small class="text-success"><i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i> Active now</small>
+        </div>
+    </div>
+    
+    <!-- Messages Area -->
+    <div class="flex-grow-1 p-3 overflow-auto" id="chat-box" style="background-color: #fff;">
+        <!-- Messages will load here via AJAX -->
+    </div>
+
+    <!-- Input Area -->
+    <div class="p-3 border-top bg-white">
+        <form method="post" class="d-flex gap-2 align-items-center">
+            {% csrf_token %}
+            <button type="button" class="btn btn-light rounded-circle"><i class="bi bi-plus-lg text-primary"></i></button>
+            <input type="text" name="content" class="form-control bg-light border-0 rounded-pill px-4" placeholder="Aa" autocomplete="off" required>
+            <button type="submit" class="btn btn-light rounded-circle"><i class="bi bi-send-fill text-primary"></i></button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const chatBox = document.getElementById("chat-box");
+let lastMessageCount = 0;
+
+function fetchMessages() {
+    fetch("{% url 'get_messages_ajax' username=other_user.username %}")
+    .then(response => response.json())
+    .then(data => {
+        if (data.messages.length !== lastMessageCount) {
+            chatBox.innerHTML = "";
+            data.messages.forEach(msg => {
+                const msgDiv = document.createElement("div");
+                msgDiv.className = `mb-3 d-flex ${msg.is_me ? 'justify-content-end' : 'justify-content-start'}`;
+                
+                // If message has a story image attachment
+                let storyHtml = "";
+                if (msg.story_image) {
+                    storyHtml = `<div class="mb-2"><img src="${msg.story_image}" style="height: 100px; width: auto; border-radius: 8px; object-fit: cover;"></div>`;
+                }
+
+                msgDiv.innerHTML = `
+                    <div class="${msg.is_me ? 'chat-bubble-me' : 'chat-bubble-them'} p-2" style="max-width: 70%;">
+                        ${storyHtml}
+                        <div class="px-2">${msg.content}</div>
+                        <div class="text-end px-2" style="font-size: 0.65rem; opacity: 0.7;">${msg.timestamp}</div>
+                    </div>
+                `;
+                chatBox.appendChild(msgDiv);
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+            lastMessageCount = data.messages.length;
+        }
+    });
+}
+
+fetchMessages();
+setInterval(fetchMessages, 2000); // Poll every 2 seconds
+</script>
+{% endblock %}

@@ -1,0 +1,141 @@
+:root {
+    --fb-blue: #1877f2;
+    --fb-bg: #f0f2f5;
+    --fb-text: #050505;
+    --fb-hover: #e4e6eb;
+}
+
+body {
+    background-color: var(--fb-bg) !important;
+    color: var(--fb-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Top Navbar */
+.navbar-fb {
+    background-color: #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 1rem;
+}
+.navbar-fb .nav-link {
+    color: #65676b;
+    font-weight: 600;
+    font-size: 1rem;
+    border-bottom: 3px solid transparent;
+    padding: 0.5rem 2rem;
+}
+.navbar-fb .nav-link.active, .navbar-fb .nav-link:hover {
+    color: var(--fb-blue);
+    border-bottom: 3px solid var(--fb-blue);
+}
+
+/* Cards */
+.fb-card {
+    background: #ffffff;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+}
+
+/* Left Sidebar */
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: var(--fb-text);
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+.sidebar-link:hover {
+    background-color: var(--fb-hover);
+}
+
+/* Stories */
+.story-circle {
+    width: 110px;
+    height: 200px;
+    border-radius: 10px;
+    background: #b8c1ce;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    background-size: cover;
+    background-position: center;
+}
+.story-circle::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0; height: 50%;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+}
+.story-avatar {
+    position: absolute;
+    top: 10px; left: 10px;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 3px solid var(--fb-blue);
+}
+
+/* Avatars */
+.avatar-circle {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--fb-blue);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+/* Messenger Chat Bubbles */
+.chat-bubble-me {
+    background-color: var(--fb-blue);
+    color: white;
+    border-radius: 18px;
+    padding: 8px 12px;
+    max-width: 70%;
+    margin-left: auto;
+}
+.chat-bubble-them {
+    background-color: #e4e6eb;
+    color: black;
+    border-radius: 18px;
+    padding: 8px 12px;
+    max-width: 70%;
+    margin-right: auto;
+}
+/* Reaction Hover Tray */
+.reaction-container {
+    position: relative;
+}
+.reaction-tray {
+    position: absolute;
+    bottom: 100%;
+    left: 10px;
+    background: white;
+    border-radius: 30px;
+    padding: 5px 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    display: none;
+    z-index: 100;
+}
+.reaction-container:hover .reaction-tray {
+    display: flex;
+    gap: 5px;
+}
+.react-btn {
+    border: none;
+    font-size: 1.5rem;
+    padding: 5px;
+    transition: transform 0.2s;
+}
+.react-btn:hover {
+    transform: scale(1.3);
+}

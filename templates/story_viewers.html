@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Story Viewers • Connectly{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Story Insights</h5>
+            <a href="{% url 'feed' %}" class="btn btn-outline-secondary btn-sm">Back to Feed</a>
+        </div>
+
+        <div class="fb-card p-3 mb-4">
+            <div class="d-flex gap-3">
+                <img src="{{ story.image.url }}" class="rounded" style="width: 100px; height: 150px; object-fit: cover;">
+                <div>
+                    <h6 class="fw-bold mb-1">Your Story</h6>
+                    <p class="text-muted small mb-1">{{ story.created_at|timesince }} ago</p>
+                    {% if story.music %}
+                        <p class="small mb-1"><i class="bi bi-music-note-beamed text-warning"></i> {{ story.music }}</p>
+                    {% endif %}
+                    <div class="d-flex gap-3 mt-2">
+                        <span class="badge bg-primary"><i class="bi bi-eye-fill"></i> {{ viewers.count }} Views</span>
+                        <span class="badge bg-danger"><i class="bi bi-heart-fill"></i> {{ story.likes.count }} Likes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fb-card p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-eye"></i> Viewed by</h6>
+            <ul class="list-group list-group-flush">
+                {% for view in viewers %}
+                    <li class="list-group-item d-flex align-items-center gap-3 py-3 px-0 border-0">
+                        <div class="avatar-circle">{{ view.viewer.username|first|upper }}</div>
+                        <div class="flex-grow-1">
+                            <a href="{% url 'profile_view' username=view.viewer.username %}" class="fw-bold text-dark text-decoration-none">
+                                {{ view.viewer.username }}
+                            </a>
+                            <div class="text-muted small">{{ view.viewed_at|timesince }} ago</div>
+                        </div>
+                        <a href="{% url 'chat_room' username=view.viewer.username %}" class="btn btn-sm btn-light text-primary rounded-circle">
+                            <i class="bi bi-chat-dots"></i>
+                        </a>
+                    </li>
+                {% empty %}
+                    <p class="text-muted text-center py-3 mb-0">No views yet. Share your story to get views!</p>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

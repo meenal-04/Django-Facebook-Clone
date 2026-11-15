@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Friend Requests • Connectly{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h4 class="fw-bold mb-3">Friend Requests</h4>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white fw-semibold">Incoming</div>
+            <div class="card-body">
+                {% for fr in incoming %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-circle">{{ fr.from_user.username|first|upper }}</div>
+                            <div>
+                                <a href="{% url 'profile_view' username=fr.from_user.username %}" class="fw-semibold text-decoration-none">
+                                    {{ fr.from_user.username }}
+                                </a>
+                                <div class="text-muted small">{{ fr.created_at|timesince }} ago</div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <form method="post" action="{% url 'accept_friend_request' request_id=fr.id %}">
+                                {% csrf_token %}
+                                <button class="btn btn-success btn-sm">Accept</button>
+                            </form>
+                            <form method="post" action="{% url 'reject_friend_request' request_id=fr.id %}">
+                                {% csrf_token %}
+                                <button class="btn btn-outline-secondary btn-sm">Reject</button>
+                            </form>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-muted mb-0">No incoming requests.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold">Sent</div>
+            <div class="card-body">
+                {% for fr in outgoing %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-circle">{{ fr.to_user.username|first|upper }}</div>
+                            <a href="{% url 'profile_view' username=fr.to_user.username %}" class="fw-semibold text-decoration-none">
+                                {{ fr.to_user.username }}
+                            </a>
+                        </div>
+                        <form method="post" action="{% url 'cancel_friend_request' request_id=fr.id %}">
+                            {% csrf_token %}
+                            <button class="btn btn-outline-danger btn-sm">Cancel</button>
+                        </form>
+                    </div>
+                {% empty %}
+                    <p class="text-muted mb-0">No sent requests.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

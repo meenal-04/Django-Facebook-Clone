@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h4 class="fw-bold mb-3">My Posts</h4>
+        {% for post in posts %}
+            <div class="fb-card mb-3 p-3">
+                <small class="text-muted">{{ post.created_at|naturaltime }}</small>
+                <p class="mt-2 mb-0">{{ post.content }}</p>
+                {% if post.image %}<img src="{{ post.image.url }}" class="img-fluid rounded mt-2">{% endif %}
+            </div>
+        {% empty %}
+            <p class="text-muted">You haven't posted anything yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold mb-0">Edit Profile</h4>
+                    <a href="{% url 'profile_view' username=user.username %}" class="btn btn-outline-secondary btn-sm">View Profile</a>
+                </div>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-semibold">First Name</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-semibold">Last Name</label>
+                            {{ form.last_name }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Email</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Current City</label>
+                        {{ form.location }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Relationship Status</label>
+                        {{ form.relationship_status }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Profile Picture</label>
+                        {{ form.avatar }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Cover Photo</label>
+                        {{ form.cover_photo }}
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold">About Me (Bio)</label>
+                        {{ form.bio }}
+                        <small class="text-muted d-block mt-1">Keep it concise. Line breaks will be preserved.</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary fw-bold px-4">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

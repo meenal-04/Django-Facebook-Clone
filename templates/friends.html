@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Friends • Connectly{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h4 class="fw-bold mb-3">{{ profile_user.username }}'s Friends</h4>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                {% for friend in friends %}
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="avatar-circle">{{ friend.user.username|first|upper }}</div>
+                        <a href="{% url 'profile_view' username=friend.user.username %}" class="fw-semibold text-decoration-none">
+                            {{ friend.user.username }}
+                        </a>
+                    </div>
+                {% empty %}
+                    <p class="text-muted mb-0">No friends yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

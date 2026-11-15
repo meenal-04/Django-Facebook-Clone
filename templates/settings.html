@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="fb-card p-4">
+            <h4 class="fw-bold mb-3">Settings</h4>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-check form-switch mb-4">
+                    {{ form.is_private }}
+                    <label class="form-check-label ms-2" for="{{ form.is_private.id_for_label }}">
+                        <strong>Private Profile</strong><br>
+                        <small class="text-muted">If enabled, only friends can see your posts.</small>
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 fw-bold">Save Settings</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

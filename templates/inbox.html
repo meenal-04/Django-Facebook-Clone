@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Messages • Connectly{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h4 class="fw-bold mb-3">Messages</h4>
+        <div class="card border-0 shadow-sm">
+            <ul class="list-group list-group-flush">
+                {% for partner in chat_partners %}
+                    <li class="list-group-item d-flex align-items-center gap-3 py-3">
+                        <div class="avatar-circle">{{ partner.username|first|upper }}</div>
+                        <div class="flex-grow-1">
+                            <a href="{% url 'chat_room' username=partner.username %}" class="text-decoration-none text-dark fw-bold">
+                                {{ partner.username }}
+                            </a>
+                        </div>
+                        <a href="{% url 'chat_room' username=partner.username %}" class="btn btn-sm btn-primary">Chat</a>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-muted text-center py-4">
+                        No messages yet. Go to a profile to start chatting!
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
